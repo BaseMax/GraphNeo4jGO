@@ -2,7 +2,12 @@ package service
 
 import (
 	"GraphNeo4jGO/DTO"
+	"GraphNeo4jGO/config"
+	"GraphNeo4jGO/repository"
+	"GraphNeo4jGO/service/auth"
+	"GraphNeo4jGO/service/user"
 	"context"
+	"github.com/go-playground/validator/v10"
 )
 
 type (
@@ -24,3 +29,26 @@ type (
 		ClaimsFromToken(token string) (any, error)
 	}
 )
+
+type srv struct {
+	user *user.ServiceImpl
+	auth *auth.ServiceImpl
+}
+
+func (s *srv) User() UserService {
+	return s.user
+}
+
+func (s *srv) Auth() Auth {
+	return s.auth
+}
+
+func New(cfg *config.Config, repo repository.Repository) Service {
+	authImpl := auth.New(cfg.Secrets)
+	userImpl := user.New(cfg, repo.UserRepo(), validator.New(), authImpl)
+
+	return &srv{
+		user: userImpl,
+		auth: authImpl,
+	}
+}
