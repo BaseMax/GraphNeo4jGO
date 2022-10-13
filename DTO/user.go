@@ -23,4 +23,5 @@ const (
 	StatusCreated Status = "Created"
 	StatusDeleted Status = "Deleted"
 	StatusUpdated Status = "Updated"
+	StatusError   Status = "Error"
 )

@@ -5,7 +5,8 @@ import "time"
 type (
 	Config struct {
 		Postgres Postgres
-        Secrets Secrets
+		Secrets  Secrets
+		Server   Server
 	}
 
 	Postgres struct {
@@ -16,5 +17,9 @@ type (
 	Secrets struct {
 		JwtSecret string
 		ExpTime   time.Duration
+	}
+
+	Server struct {
+		Addr string
 	}
 )
