@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"GraphNeo4jGO/config"
-	"GraphNeo4jGO/repository"
 	"context"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -12,7 +11,7 @@ type postgres struct {
 	db *pgxpool.Pool
 }
 
-func New(ctx context.Context, cfg config.Postgres) (repository.User, error) {
+func New(ctx context.Context, cfg config.Postgres) (*pgxpool.Pool, error) {
 	db, err := pgxpool.Connect(ctx, cfg.URI)
 	if err != nil {
 		return nil, err
@@ -22,5 +21,5 @@ func New(ctx context.Context, cfg config.Postgres) (repository.User, error) {
 		return nil, err
 	}
 
-	return &postgres{db: db}, nil
+	return db, nil
 }
