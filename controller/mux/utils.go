@@ -5,11 +5,8 @@ import (
 	"net/http"
 )
 
-func writeJson(w http.ResponseWriter, code int, data any) {
+func writeJson(w http.ResponseWriter, code int, data any) error {
 	enc := json.NewEncoder(w)
 	w.WriteHeader(code)
-	err := enc.Encode(data)
-	if err != nil {
-		panic(err)
-	}
+	return enc.Encode(data)
 }

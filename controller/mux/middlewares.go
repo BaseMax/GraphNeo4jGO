@@ -2,7 +2,10 @@ package mux
 
 import (
 	"GraphNeo4jGO/DTO"
+	"GraphNeo4jGO/repository/postgres"
+	"GraphNeo4jGO/service/user"
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -21,13 +24,14 @@ func (h *handlers) authorizationMiddlewareMux(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		reqToken, err := getAuthToken(r)
 		if err != nil {
-			panic(Error{Err: err, Section: "auth-middleware/GetTokenFromHeader", StatusCode: http.StatusBadRequest})
+			writeJson(w, http.StatusUnauthorized, DTO.Error{Status: DTO.StatusError, Err: err.Error()})
+			return
 		}
 
 		claims, err := h.srv.Auth().ClaimsFromToken(reqToken)
 		if err != nil {
-			//return
-			panic(Error{Err: err, Section: "auth-middleware/ClaimFromToken", StatusCode: http.StatusUnauthorized})
+			writeJson(w, http.StatusUnauthorized, DTO.Error{Status: DTO.StatusError, Err: err.Error()})
+			return
 		}
 
 		if claims != nil {
@@ -53,6 +57,28 @@ func (h *handlers) authorizationMiddleware(next http.HandlerFunc) http.HandlerFu
 		if claims != nil {
 			ctx := context.WithValue(r.Context(), "claims", claims)
 			next(w, r.WithContext(ctx))
+		}
+	}
+}
+
+func handler(f handlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, request *http.Request) {
+		if err := f(w, request); err != nil {
+			var e Error
+			if errors.As(err, &e) {
+				writeJson(w, e.StatusCode, DTO.Error{Status: DTO.StatusError, Err: err.Error()})
+			} else {
+				if errors.Is(err, user.ErrUsernameExists) {
+					writeJson(w, http.StatusBadRequest, DTO.Error{Status: DTO.StatusError, Err: err.Error()})
+				} else if errors.Is(err, postgres.ErrNoRowFound) {
+					writeJson(w, http.StatusNotFound, DTO.Error{Status: DTO.StatusError, Err: err.Error()})
+				} else if errors.Is(err, postgres.ErrNoRowsAffected) {
+					writeJson(w, http.StatusBadRequest, DTO.Error{Status: DTO.StatusError, Err: err.Error()})
+				} else {
+					writeJson(w, http.StatusInternalServerError, DTO.Error{Status: DTO.StatusError, Err: err.Error()})
+				}
+
+			}
 		}
 	}
 }

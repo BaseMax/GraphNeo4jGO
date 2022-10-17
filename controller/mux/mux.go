@@ -22,10 +22,11 @@ type (
 		router   *mux.Router
 		cfg      config.Server
 	}
+
+	handlerFunc func(w http.ResponseWriter, r *http.Request) error
 )
 
 func (r *rest) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	defer recoverHttp(w)
 	w.Header().Set("Content-Type", "application/json")
 	r.router.ServeHTTP(w, req)
 }

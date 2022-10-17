@@ -7,7 +7,9 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgx/v4 v4.17.2
+	github.com/joho/godotenv v1.4.0
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/neo4j/neo4j-go-driver/v4 v4.4.4
 	golang.org/x/crypto v0.0.0-20221010152910-d6f0a8c073c2
 )
 
