@@ -4,8 +4,10 @@ import (
 	"GraphNeo4jGO/config"
 	"GraphNeo4jGO/controller/mux"
 	"GraphNeo4jGO/repository"
+	"GraphNeo4jGO/repository/neo4j"
 	"GraphNeo4jGO/service"
 	"context"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -16,7 +18,7 @@ func Run(cfg *config.Config) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-	repo, err := repository.New(ctx, cfg.Postgres)
+	repo, err := repository.New(ctx, cfg)
 	if err != nil {
 		return err
 	}
@@ -34,8 +36,13 @@ func Run(cfg *config.Config) error {
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	<-sig
+	log.Printf("stoping router...")
 	if err = rest.Stop(); err != nil {
-		println("err: ", err)
+		return err
+	}
+	log.Printf("closing graph database...")
+	if err = repo.UserGraph().(*neo4j.Neo4j).Close(); err != nil {
+		return err
 	}
 
 	return nil

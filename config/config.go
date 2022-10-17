@@ -16,8 +16,8 @@ type (
 	}
 
 	Secrets struct {
-		JwtSecret string
-		ExpTime   time.Duration
+		JwtSecret string        `envconfig:"jwt_secret"`
+		ExpTime   time.Duration `envconfig:"exp_time"`
 	}
 
 	Server struct {

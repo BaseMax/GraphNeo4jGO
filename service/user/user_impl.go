@@ -9,10 +9,10 @@ import (
 	"fmt"
 )
 
-var ErrUsernameExists = errors.New("username already exists. user another username")
+var ErrUsernameExists = errors.New("username already exists. try another username")
 
 func (s *ServiceImpl) Login(ctx context.Context, username, pass string) (*DTO.UserResponse, error) {
-	user, err := s.user.UserFromUsername(ctx, username)
+	user, err := s.postgresUser.UserFromUsername(ctx, username)
 	if err != nil {
 		return nil, err
 	}
@@ -37,9 +37,9 @@ func (s *ServiceImpl) Register(ctx context.Context, request *DTO.UserRequest) (*
 	if err := s.validate.StructCtx(ctx, request); err != nil {
 		return nil, err
 	}
-	u, err := s.user.UserFromUsername(ctx, request.Username)
+	u, err := s.postgresUser.UserFromUsername(ctx, request.Username)
 	if err != postgres.ErrNoRowFound {
-		return nil, err
+		return nil, ErrUsernameExists
 	}
 	if u != nil {
 		return nil, ErrUsernameExists
@@ -51,7 +51,6 @@ func (s *ServiceImpl) Register(ctx context.Context, request *DTO.UserRequest) (*
 	}
 
 	userModel := &model.User{
-		ID:       0,
 		Username: request.Username,
 		Name:     request.Name,
 		Email:    request.Email,
@@ -59,8 +58,12 @@ func (s *ServiceImpl) Register(ctx context.Context, request *DTO.UserRequest) (*
 		Gender:   model.Gender(request.Gender),
 	}
 
-	id, err := s.user.Create(ctx, userModel)
+	id, err := s.postgresUser.Create(ctx, userModel)
 	if err != nil {
+		return nil, err
+	}
+	// create user in graph db
+	if err = s.graphUser.CreateUser(model.GraphUser{Username: request.Username}); err != nil {
 		return nil, err
 	}
 
@@ -78,7 +81,7 @@ func (s *ServiceImpl) Register(ctx context.Context, request *DTO.UserRequest) (*
 }
 
 func (s *ServiceImpl) Delete(ctx context.Context, id uint) (*DTO.UserResponse, error) {
-	if err := s.user.Delete(ctx, id); err != nil {
+	if err := s.postgresUser.Delete(ctx, id); err != nil {
 		return nil, err
 	}
 	return &DTO.UserResponse{
@@ -92,7 +95,7 @@ func (s *ServiceImpl) Update(ctx context.Context, id uint, request *DTO.UserRequ
 		return nil, err
 	}
 
-	user, err := s.user.UserFromUsername(ctx, request.Username)
+	user, err := s.postgresUser.UserFromUsername(ctx, request.Username)
 	if err != postgres.ErrNoRowFound {
 		return nil, err
 	}
@@ -114,8 +117,15 @@ func (s *ServiceImpl) Update(ctx context.Context, id uint, request *DTO.UserRequ
 		Gender:   model.Gender(request.Gender),
 	}
 
-	if err = s.user.Update(ctx, userModel); err != nil {
+	if err = s.postgresUser.Update(ctx, userModel); err != nil {
 		return nil, err
+	}
+
+	if user.Username != request.Username {
+		// update username in graph
+		if err = s.graphUser.UpdateUser(user.Username, request.Username); err != nil {
+			return nil, err
+		}
 	}
 
 	return &DTO.UserResponse{
@@ -123,8 +133,8 @@ func (s *ServiceImpl) Update(ctx context.Context, id uint, request *DTO.UserRequ
 	}, nil
 }
 
-func (s *ServiceImpl) Info(ctx context.Context, id uint) (*DTO.UserResponse, error) {
-	user, err := s.user.User(ctx, id)
+func (s *ServiceImpl) Info(ctx context.Context, username string) (*DTO.UserResponse, error) {
+	user, err := s.postgresUser.UserFromUsername(ctx, username)
 	if err != nil {
 		return nil, err
 	}

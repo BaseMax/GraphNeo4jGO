@@ -10,7 +10,7 @@ import (
 
 var (
 	ErrNoRowsAffected = errors.New("no rows affected")
-	ErrNoRowFound     = errors.New("no rows found with")
+	ErrNoRowFound     = errors.New("no result found")
 )
 
 type UserRepo struct {
@@ -23,8 +23,8 @@ func (p *UserRepo) Create(ctx context.Context, u *model.User) (uint, error) {
 	var id uint
 	err := p.db.QueryRow(
 		ctx,
-		"INSERT INTO users (username, name, email, password, gender) VALUES ($1,$2,$3,$4,$5) RETURNING user_id",
-		u.Username, u.Name, u.Email, u.Password, u.Gender,
+		"INSERT INTO users (username, name, email, password,biography, gender) VALUES ($1,$2,$3,$4,$5,$6) RETURNING user_id",
+		u.Username, u.Name, u.Email, u.Password, u.Biography, u.Gender,
 	).Scan(&id)
 
 	if err != nil {
@@ -56,8 +56,8 @@ func (p *UserRepo) Delete(ctx context.Context, id uint) error {
 func (p *UserRepo) Update(ctx context.Context, u *model.User) error {
 	_, err := p.db.Exec(
 		ctx,
-		"UPDATE users SET username=$1,name=$2,password=$3,email=$4,gender=$5 WHERE user_id=$6",
-		u.Username, u.Name, u.Password, u.Email, u.Gender, u.ID,
+		"UPDATE users SET username=$1,name=$2,password=$3,email=$4,gender=$5,biography=$6 WHERE user_id=$7",
+		u.Username, u.Name, u.Password, u.Email, u.Gender, u.Biography, u.ID,
 	)
 	if err != nil {
 		return err
@@ -72,8 +72,8 @@ func (p *UserRepo) User(ctx context.Context, id uint) (*model.User, error) {
 	u := model.User{}
 	err := p.db.QueryRow(
 		ctx,
-		"SELECT user_id, username,name,email,password,gender FROM users WHERE user_id=$1", id,
-	).Scan(&u.ID, &u.Username, &u.Name, &u.Email, &u.Password, &u.Gender)
+		"SELECT user_id, username,name,email,password,biography, gender FROM users WHERE user_id=$1", id,
+	).Scan(&u.ID, &u.Username, &u.Name, &u.Email, &u.Password, &u.Biography, &u.Gender)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, ErrNoRowFound
@@ -87,8 +87,8 @@ func (p *UserRepo) UserFromUsername(ctx context.Context, username string) (*mode
 	u := model.User{}
 	err := p.db.QueryRow(
 		ctx,
-		"SELECT user_id, username,name,email,password,gender FROM users WHERE username=$1", username,
-	).Scan(&u.ID, &u.Username, &u.Name, &u.Email, &u.Password, &u.Gender)
+		"SELECT user_id, username,name,email,password,biography, gender FROM users WHERE username=$1", username,
+	).Scan(&u.ID, &u.Username, &u.Name, &u.Email, &u.Password, &u.Biography, &u.Gender)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, ErrNoRowFound

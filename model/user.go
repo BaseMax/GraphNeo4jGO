@@ -3,12 +3,17 @@ package model
 type (
 	Gender uint8
 	User   struct {
-		ID       uint
+		ID        uint
+		Username  string
+		Name      string
+		Email     string
+		Password  string
+		Biography string
+		Gender    Gender
+	}
+
+	GraphUser struct {
 		Username string
-		Name     string
-		Email    string
-		Password string
-		Gender   Gender
 	}
 )
 

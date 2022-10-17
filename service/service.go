@@ -14,6 +14,7 @@ type (
 	Service interface {
 		User() UserService
 		Auth() Auth
+		Tweet() Tweet
 	}
 
 	UserService interface {
@@ -21,12 +22,16 @@ type (
 		Register(ctx context.Context, request *DTO.UserRequest) (*DTO.UserResponse, error)
 		Delete(ctx context.Context, id uint) (*DTO.UserResponse, error)
 		Update(ctx context.Context, id uint, request *DTO.UserRequest) (*DTO.UserResponse, error)
-		Info(ctx context.Context, id uint) (*DTO.UserResponse, error)
+		Info(ctx context.Context, id string) (*DTO.UserResponse, error)
 	}
 
 	Auth interface {
 		GenerateToken(id uint, username string) (string, error)
 		ClaimsFromToken(token string) (any, error)
+        BlackList(token string)
+	}
+
+	Tweet interface {
 	}
 )
 
@@ -43,9 +48,13 @@ func (s *srv) Auth() Auth {
 	return s.auth
 }
 
+func (s *srv) Tweet() Tweet {
+	//TODO implement me
+	panic("implement me")
+}
 func New(cfg *config.Config, repo repository.Repository) Service {
-	authImpl := auth.New(cfg.Secrets)
-	userImpl := user.New(cfg, repo.UserRepo(), validator.New(), authImpl)
+	authImpl := auth.New(cfg.Secrets, repo)
+	userImpl := user.New(cfg, repo, validator.New(), authImpl)
 
 	return &srv{
 		user: userImpl,

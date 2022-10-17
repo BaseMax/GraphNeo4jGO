@@ -36,6 +36,7 @@ func (h *handlers) authorizationMiddlewareMux(next http.Handler) http.Handler {
 
 		if claims != nil {
 			ctx := context.WithValue(r.Context(), "claims", claims)
+			ctx = context.WithValue(ctx, "token", reqToken)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 	})
@@ -45,7 +46,7 @@ func (h *handlers) authorizationMiddleware(next http.HandlerFunc) http.HandlerFu
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqToken, err := getAuthToken(r)
 		if err != nil {
-			//writeJson(w, http.StatusUnauthorized, dto.Error{Status: dto.StatusError, Error: err.Error()})
+			writeJson(w, http.StatusUnauthorized, DTO.Error{Status: DTO.StatusError, Err: err.Error()})
 			return
 		}
 		claims, err := h.srv.Auth().ClaimsFromToken(reqToken)
@@ -56,6 +57,7 @@ func (h *handlers) authorizationMiddleware(next http.HandlerFunc) http.HandlerFu
 
 		if claims != nil {
 			ctx := context.WithValue(r.Context(), "claims", claims)
+			ctx = context.WithValue(ctx, "token", reqToken)
 			next(w, r.WithContext(ctx))
 		}
 	}

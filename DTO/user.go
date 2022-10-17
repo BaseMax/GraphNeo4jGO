@@ -3,11 +3,11 @@ package DTO
 type (
 	Status      string
 	UserRequest struct {
-		Username string `json:"username,omitempty"`
-		Name     string `json:"name,omitempty"`
-		Email    string `json:"email,omitempty"`
-		Password string `json:"password,omitempty"`
-		Gender   uint8  `json:"gender,omitempty"`
+		Username string `json:"username,omitempty" validate:"required,gt=6,lowercase"`
+		Name     string `json:"name,omitempty" validate:"required,gt=6"`
+		Email    string `json:"email,omitempty" validate:"required,email"`
+		Password string `json:"password,omitempty" validate:"required,gt=8"`
+		Gender   uint8  `json:"gender,omitempty" validate:"required,oneof=1 2 3"`
 	}
 
 	UserResponse struct {
