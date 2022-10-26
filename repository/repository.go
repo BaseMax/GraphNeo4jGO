@@ -31,10 +31,21 @@ type (
 		UpdateUser(old, new string) (err error)
 		UnFollowUser(u1 model.GraphUser, u2 model.GraphUser) (err error)
 		FollowUser(u1 model.GraphUser, u2 model.GraphUser) (err error)
+		GetFollowers(username string) ([]string, error)
 	}
 
 	GraphTweet interface {
-		NewTweet(t model.Tweet) ([16]byte, error)
+		NewTweet(t model.Tweet) (string, error)
+		GetTweet(username, uuid string) (model.Tweet, error)
+		UserTweets(username string, limit, skip int) ([]model.Tweet, error)
+		Delete(user, uuid string) (err error)
+
+		LikeTweet(liker, poster, tweetID string) error
+		UnLikeTweet(liker, poster, tweetID string) error
+
+		CommentOn(c model.Comment) (string, error)
+		DeleteComment(c model.Comment) error
+		GetComments(TweetID string) ([]model.Comment, error)
 	}
 
 	Cache interface {
@@ -43,6 +54,7 @@ type (
 	}
 )
 
+// repo implements Repository interface
 type repo struct {
 	user  *postgres.UserRepo
 	graph *neo4j.Neo4j

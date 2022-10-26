@@ -8,6 +8,7 @@ import (
 	"GraphNeo4jGO/service"
 	"context"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,7 +16,8 @@ import (
 )
 
 func Run(cfg *config.Config) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+    // main context to init repository
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
 	repo, err := repository.New(ctx, cfg)
@@ -23,13 +25,20 @@ func Run(cfg *config.Config) error {
 		return err
 	}
 
+    // make sure neo4j server is available
+    if err := repo.UserGraph().(*neo4j.Neo4j).Ping(ctx); err != nil {
+        return err
+    }
+
 	srv := service.New(cfg, repo)
 	_ = srv
 
 	rest := mux.New(srv, cfg)
 	go func() {
 		if err = rest.Start(); err != nil {
-			panic(err)
+			if err != http.ErrServerClosed {
+                panic(err)
+            }
 		}
 	}()
 

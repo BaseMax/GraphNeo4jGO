@@ -3,7 +3,7 @@ package model
 type (
 	Gender uint8
 	User   struct {
-		ID        uint
+		ID        uint 
 		Username  string
 		Name      string
 		Email     string
