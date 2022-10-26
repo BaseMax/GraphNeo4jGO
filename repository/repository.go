@@ -45,7 +45,7 @@ type (
 
 		CommentOn(c model.Comment) (string, error)
 		DeleteComment(c model.Comment) error
-		GetComments(TweetID string) ([]model.Comment, error)
+		GetComments(username, tweetID string) ([]model.Comment, error)
 	}
 
 	Cache interface {

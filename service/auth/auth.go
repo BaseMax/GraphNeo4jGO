@@ -10,8 +10,8 @@ import (
 )
 
 type ServiceImpl struct {
-	cfg   config.Secrets
-	cache repository.Cache
+	cfg  config.Secrets
+	repo repository.Repository
 }
 
 type JwtClaims struct {
@@ -36,7 +36,7 @@ func (s *ServiceImpl) GenerateToken(id uint, username string) (string, error) {
 }
 
 func (s *ServiceImpl) ClaimsFromToken(t string) (any, error) {
-	_, found := s.cache.Get(t)
+	_, found := s.repo.Cache().Get(t)
 	if found {
 		return nil, fmt.Errorf("token is banned")
 	}
@@ -60,12 +60,12 @@ func (s *ServiceImpl) ClaimsFromToken(t string) (any, error) {
 }
 
 func (r *ServiceImpl) BlackList(t string) {
-	r.cache.Set(t, struct{}{})
+	r.repo.Cache().Set(t, struct{}{})
 }
 
 func New(cfg config.Secrets, repo repository.Repository) *ServiceImpl {
 	return &ServiceImpl{
-		cfg:   cfg,
-		cache: repo.Cache(),
+		cfg:  cfg,
+		repo: repo,
 	}
 }
