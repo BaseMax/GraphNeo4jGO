@@ -11,10 +11,10 @@ type (
 	}
 
 	UserResponse struct {
-		Status Status `json:"status"`
-		ID     uint   `json:"id,omitempty"`
-		Token  string `json:"token,omitempty"`
 		Data   any    `json:"data,omitempty"`
+		Status Status `json:"status"`
+		Token  string `json:"token,omitempty"`
+		ID     uint   `json:"id,omitempty"`
 	}
 )
 

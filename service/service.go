@@ -50,6 +50,13 @@ type (
 		UserTweets(username string, limit, skip int) (*DTO.TweetResponse, error)
 		UserTweet(username, uuid string) (DTO.TweetResponse, error)
 		DeleteTweet(username, uuid string) (DTO.TweetResponse, error)
+
+		LikeTweet(liker, poster, uuid string) (DTO.TweetResponse, error)
+		UnLike(liker, poster, uuid string) (DTO.TweetResponse, error)
+
+		CommentOn(r DTO.CommentRequest) (*DTO.CommentResponse, error)
+		DeleteComment(r DTO.CommentRequest) (*DTO.CommentResponse, error)
+		AllComments(username, uuid string) ([]DTO.CommentResponse, error)
 	}
 )
 

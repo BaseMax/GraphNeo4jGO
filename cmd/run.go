@@ -16,7 +16,7 @@ import (
 )
 
 func Run(cfg *config.Config) error {
-    // main context to init repository
+	// main context to init repository
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
@@ -25,10 +25,10 @@ func Run(cfg *config.Config) error {
 		return err
 	}
 
-    // make sure neo4j server is available
-    if err := repo.UserGraph().(*neo4j.Neo4j).Ping(ctx); err != nil {
-        return err
-    }
+	// make sure neo4j server is available
+	if err := repo.UserGraph().(*neo4j.Neo4j).Ping(ctx); err != nil {
+		return err
+	}
 
 	srv := service.New(cfg, repo)
 	_ = srv
@@ -37,8 +37,8 @@ func Run(cfg *config.Config) error {
 	go func() {
 		if err = rest.Start(); err != nil {
 			if err != http.ErrServerClosed {
-                panic(err)
-            }
+				panic(err)
+			}
 		}
 	}()
 

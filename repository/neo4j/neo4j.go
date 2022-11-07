@@ -46,7 +46,7 @@ func (n *Neo4j) Ping(ctx context.Context) error {
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-res:
-            // log.Println("connection ok")
+			// log.Println("connection ok")
 			return nil
 		}
 	}

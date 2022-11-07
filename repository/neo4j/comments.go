@@ -72,8 +72,8 @@ func (n *Neo4j) GetComments(username, tweetID string) ([]model.Comment, error) {
 		}
 	}()
 
-	results, err := session.Run(
-		`MATCH (:User {username: $username})-[c:COMMENTED]->(:Tweet {uuid: $uuid})
+	results, err := session.Run(`
+        MATCH (:User {username: $username})-[c:COMMENTED]->(:Tweet {uuid: $uuid})
         RETURN c`,
 		params{"username": username, "uuid": tweetID},
 	)
