@@ -5,10 +5,11 @@ import (
 	"GraphNeo4jGO/controller"
 	"GraphNeo4jGO/service"
 	"context"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 type (
@@ -47,7 +48,7 @@ func (r *rest) Start() error {
 
 func (r *rest) Stop() error {
 	log.Println("Stopping server...")
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
 	return r.server.Shutdown(ctx)
 }

@@ -50,11 +50,11 @@ func (h *handlers) delete(w http.ResponseWriter, r *http.Request) error {
 		return newError(http.StatusBadRequest, fmt.Errorf("cant get jwt claims from context"))
 	}
 
-	response, err := h.srv.User().Delete(r.Context(), claims.ID)
+	response, err := h.srv.User().Delete(r.Context(), claims.ID, claims.Username)
 	if err != nil {
 		return err
 	}
-    h.srv.Auth().BlackList(r.Context().Value("token").(string))
+	h.srv.Auth().BlackList(r.Context().Value("token").(string))
 
 	return writeJson(w, http.StatusOK, response)
 }
