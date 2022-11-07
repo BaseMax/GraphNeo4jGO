@@ -3,23 +3,21 @@ package mux
 import (
 	"GraphNeo4jGO/DTO"
 	"GraphNeo4jGO/service/auth"
-	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
-	"time"
 )
 
 func (h *handlers) register(w http.ResponseWriter, r *http.Request) error {
-	ctx, cancel := context.WithTimeout(r.Context(), time.Second*10)
-	defer cancel()
+	//ctx, cancel := context.WithTimeout(r.Context(), time.Second*10)
+	//defer cancel()
 	var req DTO.UserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return newError(http.StatusBadRequest, err)
 	}
 
-	response, err := h.srv.User().Register(ctx, &req)
+	response, err := h.srv.User().Register(r.Context(), &req)
 	if err != nil {
 		return err
 	}
