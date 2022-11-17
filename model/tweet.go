@@ -8,7 +8,7 @@ type (
 		Poster    string    `mapstructure:"username"`
 		Text      string    `mapstructure:"text"`
 		LikeCount int       `mapstructure:"like_count"`
-		UUID      [16]byte  `mapstructure:"uuid"`
+		UUID      string    `mapstructure:"uuid"`
 	}
 
 	Comment struct {

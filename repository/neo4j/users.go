@@ -17,7 +17,11 @@ func (n *Neo4j) CreateUser(user model.GraphUser) (err error) {
 			err = e
 		}
 	}()
-	records, err := session.Run(`MERGE (u:User {username: $username}) RETURN u.username`,
+	records, err := session.Run(`
+        MERGE (u:User {username: $username})
+        // CREATE CONSTRAINT uniq_user IF NOT EXISTS FOR (u) REQUIRE u.username IS UNIQUE
+        RETURN u.username
+        `,
 		params{"username": user.Username})
 	if err != nil {
 		return err
@@ -43,8 +47,11 @@ func (n *Neo4j) DeleteUser(user model.GraphUser) (err error) {
 		}
 	}()
 
-	_, err = session.Run(`MATCH (u:User {username: $username})
-								DELETE u`,
+	_, err = session.Run(`
+        MATCH (u:User {username: $username})
+        MATCH (u)-[tr:TWEETED]->(t:Tweet)
+        MATCH (u)-[lr:LIKED]->(:Tweet)
+        DELETE tr, t, lr, u`,
 		params{"username": user.Username})
 	if err != nil {
 		return err

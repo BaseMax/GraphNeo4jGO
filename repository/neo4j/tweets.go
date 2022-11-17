@@ -16,7 +16,9 @@ func (n *Neo4j) NewTweet(t model.Tweet) (uuid string, err error) {
 	}()
 
 	result, err := session.Run(`
-        MERGE (:User {username: $username})-[:TWEETED]->(t:Tweet {uuid: $uuid})
+        MATCH(u:User {username: $username})
+        MATCH(t:Tweet {uuid: $uuid})
+        MERGE (u)-[:TWEETED]->(t)
         ON CREATE set t.date = datetime()
         ON CREATE set t.text = $text
         RETURN t.uuid`,
@@ -50,6 +52,7 @@ func (n *Neo4j) UserTweets(username string, limit, skip int) ([]model.Tweet, err
 	var tweets []model.Tweet
 	res, err := session.Run(`
         MATCH (:User {username: $username})-[:TWEETED]->(t:Tweet)
+        MATCH (u:User)-[:LIKED]->(t)
         RETURN t SKIP $skip LIMIT $limit`,
 		params{"username": username, "limit": limit, "skip": skip})
 	if err != nil {
@@ -120,8 +123,8 @@ func (n *Neo4j) Delete(user, uuid string) (err error) {
 	}()
 
 	_, err = session.Run(
-		`MATCH (:User {username: $username})-[:TWEETED]->(t:Tweet {uuid: $uuid})
-        DELETE t`,
+		`MATCH (u:User {username: $username})-[r:TWEETED]->(t:Tweet {uuid: $uuid})
+        DELETE r,t,u`,
 		params{"username": user, "uuid": uuid},
 	)
 

@@ -13,7 +13,7 @@ func (t *TweetService) LikeTweet(liker, poster, uuid string) (DTO.TweetResponse,
 	}
 
 	return DTO.TweetResponse{
-		Status:  DTO.StatusCreated,
+		Status:  DTO.StatusUpdated,
 		TweetID: uuid,
 	}, nil
 	//panic("unimplemented")

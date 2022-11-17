@@ -15,5 +15,17 @@ func (r *rest) routing() {
 	{
 		tweets := api.PathPrefix("/tweets").Subrouter()
 		tweets.Use(r.handlers.authorizationMiddlewareMux)
+
+		tweets.Handle("/new/", handler(r.handlers.newTweet)).Methods(http.MethodPost)
+		tweets.Handle("/{username}/", handler(r.handlers.userTweets)).Methods(http.MethodGet)
+		tweets.Handle("/{username}/{uuid}/", handler(r.handlers.userTweet)).Methods(http.MethodGet)
+		tweets.Handle("/delete/{uuid}/", handler(r.handlers.deleteTweet)).Methods(http.MethodDelete)
+
+		tweets.Handle("/{username}/{uuid}/like/", handler(r.handlers.likeTweet)).Methods(http.MethodPatch)
+		tweets.Handle("/{username}/{uuid}/unlike/", handler(r.handlers.unlikeTweet)).Methods(http.MethodPatch)
+
+		tweets.Handle("/{username}/{uuid}/comment/", handler(r.handlers.addComment)).Methods(http.MethodPost)
+		tweets.Handle("/{username}/{uuid}/comment/", handler(r.handlers.allComments)).Methods(http.MethodGet)
+		tweets.Handle("/{username}/{uuid}/comment/", handler(r.handlers.deleteComment)).Methods(http.MethodDelete)
 	}
 }

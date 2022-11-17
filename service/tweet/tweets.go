@@ -21,7 +21,7 @@ func (t *TweetService) NewTweet(ctx context.Context, request DTO.TweetRequest) (
 	tweet := model.Tweet{
 		Poster: request.Username,
 		Text:   request.Text,
-		UUID:   tuidd,
+		UUID:   tuidd.String(),
 	}
 
 	id, err := t.repo.TweetGraph().NewTweet(tweet)
