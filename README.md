@@ -1,4 +1,4 @@
-# GraphNeo4jGO
+# Graph Neo4j Go
 
 This is a simple twitter-like api written in go as an example to use neo4j with golang.
 
@@ -89,3 +89,5 @@ Base path: `host://api/v1/user`
 	"id": 4
 }
 ```
+
+Copyright 2023, Max Base
